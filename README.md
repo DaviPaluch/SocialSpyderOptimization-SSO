@@ -1,1 +1,1 @@
-# SocialSpyderOptimization-SSO-
+# SocialSpyderOptimization-SSO
