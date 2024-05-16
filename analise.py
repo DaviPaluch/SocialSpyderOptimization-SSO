@@ -54,7 +54,7 @@ results = [
     (-42795.0205744262, [10.58658338, 98.76641388]),
     (-87577.69393726377, [9.95955487, 72.46101438]),
     (-502.3535375324368, [0.95423122, -1.34430264]),
-    (-900.1622970610399, [-3.22454731, 13.24699552]),
+    (-900.1622970610399, [-3.22454731, 13.24699552]),   
     (-96.35968785008879, [-0.04738652, -0.87462346]),
     (-53719.05015352091, [7.30585647, 33.93004245]),
     (-8523.597636001998, [1.96108694, -5.62054415]),
@@ -75,7 +75,14 @@ results = [
 fitness_values = [result[0] for result in results]
 solutions = [result[1] for result in results]
 
-
+# Criando o gráfico
+plt.figure(figsize=(10, 6))
+sns.histplot(fitness_values, kde=True, bins=10)
+plt.title('Distribuição dos Valores de Fitness')
+plt.xlabel('Fitness')
+plt.ylabel('Frequência')
+plt.grid(True)
+plt.show()
 
 # Criando o gráfico
 plt.figure(figsize=(10, 6))
