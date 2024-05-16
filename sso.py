@@ -220,12 +220,14 @@ def social_spider_optimization():
     spiders = []
     create_population()
     number_of_iterations = 0
+    max_fes = 10000 * D
     r = radius()
-    # print("Radius = " + str(r))
+    max_error = 1e-8
+    max_fes_reached = False
+    error_achieved = False
     max_all = -np.inf
     max_s = np.ones(n)
-    while number_of_iterations < lim:
-        #print(colored("ITERATIONS " + str(number_of_iterations), 'blue'))
+    while not max_fes_reached and not error_achieved:
         update_positions()
         update_fitness()
         best = maximum()
@@ -236,7 +238,6 @@ def social_spider_optimization():
         update_weight(best.fitness, worst.fitness)
         means = median_male_spider()
         update_group(means)
-        #print("best = " + str(best.fitness) + '\n' + "worst = " + str(worst.fitness) + '\n' + "median = " + str(means) + '\n')
         for x in range(population):
             a = random.random()
             b = random.random()
@@ -245,32 +246,26 @@ def social_spider_optimization():
             if spiders[x].gender == Female:
                 near_spider = nearest_spider(spiders[x], ["spiders[i].weight > spider.weight"])
                 if probability():
-                    spiders[x].s_next = type_1_female(spiders[x].s, vibrations(spiders[x], near_spider), near_spider.s,
+                    spiders[x].s_next = type_1_female(spiders[x].s, vibrations(spiders[x], near_spider),
+                                                      near_spider.s,
                                                       vibrations(spiders[x], best), best.s, a, b, d, rand)
                 else:
-                    spiders[x].s_next = type_2_female(spiders[x].s, vibrations(spiders[x], near_spider), near_spider.s,
+                    spiders[x].s_next = type_2_female(spiders[x].s, vibrations(spiders[x], near_spider),
+                                                      near_spider.s,
                                                       vibrations(spiders[x], best), best.s, a, b, d, rand)
             elif spiders[x].gender == Male:
                 if spiders[x].weight > means:
-
                     near_w = nearest_spider(spiders[x], ["spiders[i].gender == Female"])
-
                     spiders[x].s_next = type_1_male(spiders[x].s, near_w.s, vibrations(spiders[x], near_w), a, d, rand)
                 else:
                     spiders[x].s_next = type_2_male(spiders[x].s, a)
-            # print("spiders "+str(x))
-            # spiders[x].print_out()
-            # print()
-        # Mating operator
         for m in range(population_male):
             if spiders[population_female + m].group == D:
-                # print("spider"+str(population_female+m))
                 sp = []
                 likely = []
                 for w in range(population_female):
                     if distance_euclidean(spiders[population_female + m].s, spiders[w].s) < r:
                         sp.append(spiders[w])
-                        # print("spider "+str(w))
                 if len(sp) != 0:
                     sp.append(spiders[population_female + m])
                     total_weight = 0
@@ -286,13 +281,12 @@ def social_spider_optimization():
                             if number < likely[k]:
                                 spider_new[j] = sp[k].s[j]
                                 break
-                    # if spider new has same position with other spider
                     if check(spider_new):
                         for same in range(len(sp)):
                             if np.array_equal(spider_new, sp[same].s):
                                 sp.remove(sp[same])
-                                random_pos = random.randint(0, n-1)
-                                random_sp = random.randint(0, len(sp)-1)
+                                random_pos = random.randint(0, n - 1)
+                                random_sp = random.randint(0, len(sp) - 1)
                                 spider_new[random_pos] = sp[random_sp].s[random_pos]
                                 break
                     if f(spider_new) > worst.fitness:
@@ -304,94 +298,34 @@ def social_spider_optimization():
                         update_weight(best.fitness, worst.fitness)
                         means = median_male_spider()
                         update_group(means)
-        #print(str(number_of_iterations))
         number_of_iterations += 1
+        max_fes_reached = number_of_iterations >= max_fes
+        error_achieved = best.fitness < max_error
     maximize = maximum()
     return maximize.fitness, maximize.s_next
 
 
-# Sphere maximum = 0 (0,0)
-def test_0():
-    global population, population_male, population_female, y, n, spiders, lim, pf, bounds
-    rand = random.random()  # random [0,1]
-    population = 15
-    population_female = int((0.9 - rand * 0.25) * population)
-    population_male = population - population_female
-    y = "- z[0]**2 - z[1]**2 - z[2]**2 - z[3]**2 - z[4]**2"
-    n = 5
-    bounds = np.array([[-10, 10],
-                       [-10, 10],
-                       [-10, 10],
-                       [-10, 10],
-                       [-10, 10]])
-    lim = 400
-    pf = 0.8
-
-
-# Three-hump camel function maximum = 0 (0,0)
-def test_1():
-    global population, population_male, population_female, y, n, spiders, lim, pf, bounds
-    rand = random.random()  # random [0,1]
-    population = 10
-    population_female = int((0.9 - rand * 0.25) * population)
-    population_male = population - population_female
-    y = "-(2*z[0]**2 - 1.05 * z[0]**4 + z[0]**6 /6 + z[0] * z[1] + z[1]**2)"
-    n = 2
-    bounds = np.array([[-5, 5],
-                       [-5, 5]])
-    lim = 200
-    pf = 0.5
-
-
-# Himmelblau's function minimum=0 (3,2) (-3.77931,-3.28319) (-2.80512, 3.13131) (3.58443,-1.84813)
-def test_2():
-    global population, population_male, population_female, y, n, spiders, lim, pf, bounds
-    rand = random.random()  # random [0,1]
-    population = 15
-    population_female = int((0.9 - rand * 0.25) * population)
-    population_male = population - population_female
-    y = "-(z[0]**2 + z[1] - 11)**2 - (z[0] + z[1]**2 -7)**2"
-    n = 2
-    bounds = np.array([[-5, 5],
-                       [-5, 5]])
-    lim = 200
-    pf = 0.8
 
 
 # Rosenbrock function	maximize=0  (1,1)
 def test_3():
     global population, population_male, population_female, y, n, spiders, lim, pf, bounds
     rand = random.random()  # random [0,1]
-    population = 30
+    population = 100
     population_female = int((0.9 - rand * 0.25) * population)
     population_male = population - population_female
     y = "-100*(z[1]-z[0]**2)**2 - (1 - z[0]**2)**2"
     n = 2
-    bounds = np.array([[-10, 10],
-                       [-10, 10]])
+    bounds = np.array([[-100, 100],
+                       [-100, 100]])
     lim = 200
     pf = 0.7
 
 
-for test in range(10):
+# Number of executions per problem
+executions_per_problem = 51
+
+for test in range(executions_per_problem):
     test_3()
     best_fitness, best_s = social_spider_optimization()
     print('\n' + colored("Τest " + str(test + 1), 'blue') + '\n' + "f(max) = "+str(best_fitness)+" max = "+str(best_s))
-
-
-
-
-# # Bukin function N.6 4 minimum = 0 (-10,1)
-# def test_():
-#     global population, population_male, population_female, y, n, spiders, lim, pf, bounds
-#     rand = random.random()  # random [0,1]
-#     population = 100
-#     population_female = int((0.9 - rand * 0.25) * population)
-#     population_male = population - population_female
-#     y = "-100 * math.sqrt(abs(z[1]-0.01*z[0]**2)) - 0.01* abs(z[0]+10)"
-#     n = 2
-#     bounds = np.array([[-1.5, -5],
-#                        [-3, 3]])
-#     lim = 200
-#     pf = 0.7
-# -math.cos(z[0])*math.cos(z[1])*math.exp(-(z[0]-3.14)**2-(z[1]-3.14)**2)
