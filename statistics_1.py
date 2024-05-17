@@ -1,21 +1,5 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
-import random
 import numpy as np
-
-# Função para definir os parâmetros do problema
-def test_3():
-    global population, population_male, population_female, y, n, spiders, lim, pf, bounds
-    rand = random.random()  # random [0,1]
-    population = 100
-    population_female = int((0.9 - rand * 0.25) * population)
-    population_male = population - population_female
-    y = "-100*(z[1]-z[0]**2)**2 - (1 - z[0]**2)**2"
-    n = 2
-    bounds = np.array([[-100, 100],
-                       [-100, 100]])
-    lim = 200
-    pf = 0.7
 
 # Resultados armazenados em uma lista de tuplas (fitness, solução)
 results = [
@@ -72,26 +56,19 @@ results = [
     (-30718.547768029537, [-3.85720852, -2.54384416])
 ]
 
-# Separando os resultados em listas de fitness e soluções
+# Extrair os valores de fitness
 fitness_values = [result[0] for result in results]
-solutions = [result[1] for result in results]
 
-# Criando o gráfico
-plt.figure(figsize=(10, 6))
-sns.histplot(fitness_values, kde=True, bins=10)
-plt.title('Distribuição dos Valores de Fitness')
-plt.xlabel('Fitness')
-plt.ylabel('Frequência')
-plt.grid(True)
-plt.show()
+# Calcular estatísticas
+melhor_resultado = np.max(fitness_values)
+pior_resultado = np.min(fitness_values)
+media = np.mean(fitness_values)
+mediana = np.median(fitness_values)
+desvio_padrao = np.std(fitness_values)
 
-# Criando o gráfico
-plt.figure(figsize=(10, 6))
-sns.histplot(fitness_values, kde=True, bins=10)
-plt.title('Distribuição dos Valores de Fitness')
-plt.xlabel('Fitness')
-plt.ylabel('Frequência')
-plt.grid(True)
-plt.axvline(x=10, color='r', linestyle='--', label='10 segundos')
-plt.legend()
-plt.show()
+# Exibir estatísticas
+print(f"Melhor Resultado: {melhor_resultado}")
+print(f"Pior Resultado: {pior_resultado}")
+print(f"Média: {media}")
+print(f"Mediana: {mediana}")
+print(f"Desvio Padrão: {desvio_padrao}")

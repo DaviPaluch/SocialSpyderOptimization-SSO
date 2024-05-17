@@ -13,7 +13,9 @@ Female = False
 
 D = True
 ND = False
-
+a = 0.5
+b = 3
+k_max = 20
 
 class Spider:
     def __init__(self, s, s_next, weight, gender, fitness):
@@ -304,14 +306,14 @@ def social_spider_optimization():
     maximize = maximum()
     return maximize.fitness, maximize.s_next
 
-
-
+# Number of executions per problem
+executions_per_problem = 51
 
 # Rosenbrock function	maximize=0  (1,1)
-def test_3():
+def test_Rosenbrock():
     global population, population_male, population_female, y, n, spiders, lim, pf, bounds
     rand = random.random()  # random [0,1]
-    population = 100
+    population = 200
     population_female = int((0.9 - rand * 0.25) * population)
     population_male = population - population_female
     y = "-100*(z[1]-z[0]**2)**2 - (1 - z[0]**2)**2"
@@ -322,10 +324,81 @@ def test_3():
     pf = 0.7
 
 
-# Number of executions per problem
-executions_per_problem = 51
+
+
+resultsRosenbrock = []
 
 for test in range(executions_per_problem):
-    test_3()
+    test_Rosenbrock()
     best_fitness, best_s = social_spider_optimization()
+    resultsRosenbrock.append((best_fitness, best_s))
     print('\n' + colored("Τest " + str(test + 1), 'blue') + '\n' + "f(max) = "+str(best_fitness)+" max = "+str(best_s))
+
+# Função Rastrigin: maximize=0 no ponto (0,0)
+def test_Rastrigin():
+    global population, population_male, population_female, y, n, spiders, lim, pf, bounds
+    rand = random.random()  # random [0,1]
+    population = 200
+    population_female = int((0.9 - rand * 0.25) * population)
+    population_male = population - population_female
+    y = "- (10 * n + sum([z[i]**2 - 10 * np.cos(2 * np.pi * z[i]) for i in range(n)]))"
+    n = 2
+    bounds = np.array([[-5.12, 5.12],
+                       [-5.12, 5.12]])
+    lim = 200
+    pf = 0.7
+
+resultsRastrigin = []
+
+for test in range(executions_per_problem):
+    test_Rastrigin()
+    best_fitness, best_s = social_spider_optimization()
+    resultsRastrigin.append((best_fitness, best_s))
+    print('\n' + colored("Τest " + str(test + 1), 'blue') + '\n' + "f(max) = " + str(best_fitness) + " max = " + str(best_s))
+
+
+
+# Extrair os valores de fitness para cada conjunto de resultados
+fitness_values_rosenbrock = [result[0] for result in resultsRosenbrock]
+fitness_values_rastrigin= [result[0] for result in resultsRastrigin]
+
+
+# Função para formatar a tabela
+def print_table(title, data):
+    print(f"{'='*len(title)}")
+    print(title)
+    print(f"{'='*len(title)}")
+    for key, value in data.items():
+        print(f"{key}: {value}")
+    print()
+
+# Calcular estatísticas para Rosenbrock
+melhor_rosenbrock = np.max(fitness_values_rosenbrock)
+pior_rosenbrock = np.min(fitness_values_rosenbrock)
+media_rosenbrock = np.mean(fitness_values_rosenbrock)
+mediana_rosenbrock = np.median(fitness_values_rosenbrock)
+desvio_padrao_rosenbrock = np.std(fitness_values_rosenbrock)
+
+# Calcular estatísticas para Rastrigin
+melhor_rastrigin = np.max(fitness_values_rastrigin)
+pior_rastrigin = np.min(fitness_values_rastrigin)
+media_rastrigin = np.mean(fitness_values_rastrigin)
+mediana_rastrigin = np.median(fitness_values_rastrigin)
+desvio_padrao_rastrigin = np.std(fitness_values_rastrigin)
+
+# Exibir tabela de estatísticas
+print_table("Estatísticas para a função de Rosenbrock", {
+    "Melhor Resultado": melhor_rosenbrock,
+    "Pior Resultado": pior_rosenbrock,
+    "Média": media_rosenbrock,
+    "Mediana": mediana_rosenbrock,
+    "Desvio Padrão": desvio_padrao_rosenbrock
+})
+
+print_table("Estatísticas para a função de Rastrigin", {
+    "Melhor Resultado": melhor_rastrigin,
+    "Pior Resultado": pior_rastrigin,
+    "Média": media_rastrigin,
+    "Mediana": mediana_rastrigin,
+    "Desvio Padrão": desvio_padrao_rastrigin
+})
